@@ -17,7 +17,10 @@ export class BaseService<
   CreateDto,
   UpdateDto,
 > {
-  constructor(private readonly repository: Repository<Entity>) {}
+  constructor(
+    private readonly repository: Repository<Entity>,
+    private readonly entityName: string,
+  ) {}
 
   /* ========== 🆕 Create operation ========== */
   async create(createDto: CreateDto): Promise<ResponseData<Entity>> {
@@ -27,7 +30,7 @@ export class BaseService<
 
     const response = new ResponseData<Entity>({
       success: true,
-      message: 'Yaratildi',
+      message: `Yangi ${this.entityName.toLowerCase()} muvaffaqiyatli yaratildi`,
       statusCode: HttpStatus.CREATED,
       data: createdEntity,
     });
@@ -47,18 +50,21 @@ export class BaseService<
 
     const totalPages = Math.ceil(total / take);
 
-    const metadata: MetaData = {
-      page: options?.page,
-      limit: data.length,
-      total,
-      totalPages,
-      hasNextPage: options?.page ? totalPages > options.page : false,
-      hasPrevPage: options?.page ? options.page > 1 : false,
-    };
+    let metadata: MetaData | undefined;
+    if (options?.page) {
+      metadata = {
+        page: options.page,
+        limit: data.length,
+        total,
+        totalPages,
+        hasNextPage: totalPages > options.page,
+        hasPrevPage: options.page > 1,
+      };
+    }
 
     const response = new ResponseData<Entity[]>({
       success: true,
-      message: "Barcha ma'lumotlar",
+      message: `${this.entityName}lar ro'yxati`,
       statusCode: HttpStatus.OK,
       data: data,
       meta: metadata,
@@ -73,7 +79,7 @@ export class BaseService<
     });
 
     if (!entity) {
-      throw new NotFoundException('Not Found');
+      throw new NotFoundException(`${this.entityName} ma'lumotlari topilmadi`);
     }
 
     return entity;
@@ -95,7 +101,7 @@ export class BaseService<
 
     return new ResponseData<Entity>({
       success: true,
-      message: 'Updated',
+      message: `${this.entityName} ma'lumotlari muvaffaqiyatli yangilandi`,
       statusCode: HttpStatus.OK,
     });
   }
@@ -108,7 +114,7 @@ export class BaseService<
 
     return new ResponseData<Entity>({
       success: false,
-      message: 'deleted',
+      message: `${this.entityName} ma'lumoti muvaffaqiyatli o'chirildi`,
       statusCode: HttpStatus.OK,
     });
   }
