@@ -31,7 +31,9 @@ async function bootstrap() {
 
   // Serverni ishga tushirish
   await app.listen(PORT, () => {
-    log.box(`Server ${PORT}da ishladi`);
+    log.box(
+      `Server ${PORT}da ishladi\n\nSwagger => http://localhost:${PORT}/${api}`,
+    );
   });
 }
 bootstrap();
