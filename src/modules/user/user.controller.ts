@@ -36,13 +36,13 @@ export class UserController {
   @Get()
   @applyDecorators(...FindAllUserResponseDocs)
   findAll(@Query() query: FindAllDto) {
-    const findAllOptions:FindAllOptions<User> = {
+    const findAllOptions: FindAllOptions<User> = {
       search: query.search,
-      searchFields: query.searchFields,
+      searchFields: query.searchFields as (keyof User)[],
       page: query.page,
-      sort
-    }
-    return this.userService.findAll(query);
+      sort: { field: query.sortField as keyof User, order: query.sortOrder! },
+    };
+    return this.userService.findAll(findAllOptions);
   }
 
   @Get(':id')
