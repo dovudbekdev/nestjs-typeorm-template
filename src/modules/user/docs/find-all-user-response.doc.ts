@@ -1,5 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { FindAllUserResponse } from './user-response.doc';
 
 export const FindAllUserResponseDocs = [

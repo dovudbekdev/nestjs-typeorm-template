@@ -16,4 +16,8 @@ export class AppConfigService {
   get dbConfig() {
     return this.configService.get('database');
   }
+
+  get paginationLimit(): number {
+    return this.configService.get('app.paginationLimit')!;
+  }
 }

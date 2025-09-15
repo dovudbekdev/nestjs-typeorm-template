@@ -12,7 +12,7 @@ export class User extends BaseEntity {
     description: 'Elektron pochta manzili',
     example: 'dovudbek.dev@gmail.com',
   })
-  @Column({ type: 'varchar', unique: true })
+  @Column({ type: 'varchar', unique: true, nullable: true })
   email: string;
 
   @ApiPropertyOptional({
@@ -31,7 +31,7 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', unique: true })
   username: string;
 
-//   @ApiProperty({ type: 'string', description: 'Parol', example: '1234' })
+  //   @ApiProperty({ type: 'string', description: 'Parol', example: '1234' })
   @Column({ type: 'text' })
   password: string;
 }

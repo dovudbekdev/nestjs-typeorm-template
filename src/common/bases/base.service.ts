@@ -1,16 +1,18 @@
 // Nestjs va tashqi kutubxonalar
 import {
   DeepPartial,
+  FindOptionsOrder,
   FindOptionsWhere,
+  ILike,
   ObjectLiteral,
   Repository,
 } from 'typeorm';
+import { HttpStatus, NotFoundException } from '@nestjs/common';
 
 // Loyihaning xususiy modullari va local fayllar
 import { toSkipTake } from '@common/lib';
 import { MetaData, ResponseData } from '@common/lib/ResponseData.lib';
-import { PaginationOptions } from '@common/types';
-import { HttpStatus, NotFoundException } from '@nestjs/common';
+import { FindAllOptions } from '@common/types';
 
 export class BaseService<
   Entity extends ObjectLiteral & { id: number },
@@ -39,26 +41,45 @@ export class BaseService<
 
   /* ========== 📖 Read operation ========== */
   async findAll(
-    options?: PaginationOptions<Entity>,
+    options?: FindAllOptions<Entity>,
   ): Promise<ResponseData<Entity[]>> {
-    const { skip, take } = toSkipTake(options?.page, options?.limit);
+    const { limit, page, search, searchFields, sort } = options || {};
+
+    const { skip, take } = toSkipTake(page, limit);
+
+    let where: FindOptionsWhere<Entity>[] | undefined = options?.where
+      ? [options.where]
+      : undefined;
+
+    // Agar search yoki fields bo'lsa ---> search shartlarini qo'shamiz
+    if (search && searchFields && searchFields.length > 0) {
+      const searchConditions = searchFields.map((filed) => ({
+        [filed]: ILike(`%${search}%`),
+      })) as FindOptionsWhere<Entity>[];
+
+      where = where ? [...where, ...searchConditions] : searchConditions;
+    }
+
     const [data, total] = await this.repository.findAndCount({
       skip,
       take,
-      where: options?.where,
+      where,
+      order: sort
+        ? ({ [sort.field]: sort.order } as FindOptionsOrder<Entity>)
+        : undefined,
     });
 
     const totalPages = Math.ceil(total / take);
 
     let metadata: MetaData | undefined;
-    if (options?.page) {
+    if (page) {
       metadata = {
-        page: options.page,
+        page: page,
         limit: data.length,
         total,
         totalPages,
-        hasNextPage: totalPages > options.page,
-        hasPrevPage: options.page > 1,
+        hasNextPage: totalPages > page,
+        hasPrevPage: page > 1,
       };
     }
 

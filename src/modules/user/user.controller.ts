@@ -1,3 +1,4 @@
+// Nestjs va tashqi kutubxonalar
 import {
   Controller,
   Get,
@@ -8,12 +9,18 @@ import {
   Delete,
   UseGuards,
   applyDecorators,
+  Query,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+
+// Loyiha modullari va local fayllar
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiTags } from '@nestjs/swagger';
 import { CreateUserResponseDocs, FindAllUserResponseDocs } from './docs';
+import { FindAllDto } from '@common/dtos';
+import { FindAllOptions } from '@common/types';
+import { User } from './entities/user.entity';
 
 @ApiTags('Users')
 @Controller('user')
@@ -28,8 +35,14 @@ export class UserController {
 
   @Get()
   @applyDecorators(...FindAllUserResponseDocs)
-  findAll() {
-    return this.userService.findAll();
+  findAll(@Query() query: FindAllDto) {
+    const findAllOptions:FindAllOptions<User> = {
+      search: query.search,
+      searchFields: query.searchFields,
+      page: query.page,
+      sort
+    }
+    return this.userService.findAll(query);
   }
 
   @Get(':id')
