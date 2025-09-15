@@ -21,11 +21,15 @@ import { CreateUserResponseDocs, FindAllUserResponseDocs } from './docs';
 import { FindAllDto } from '@common/dtos';
 import { FindAllOptions } from '@common/types';
 import { User } from './entities/user.entity';
+import { AppConfigService } from '@config/config.service';
 
 @ApiTags('Users')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly appConfigService: AppConfigService,
+  ) {}
 
   @Post()
   @applyDecorators(...CreateUserResponseDocs)
@@ -40,6 +44,7 @@ export class UserController {
       search: query.search,
       searchFields: query.searchFields as (keyof User)[],
       page: query.page,
+      limit: this.appConfigService.paginationLimit,
       sort: { field: query.sortField as keyof User, order: query.sortOrder! },
     };
     return this.userService.findAll(findAllOptions);

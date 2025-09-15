@@ -43,9 +43,9 @@ export class BaseService<
   async findAll(
     options?: FindAllOptions<Entity>,
   ): Promise<ResponseData<Entity[]>> {
-    const { limit, page, search, searchFields, sort } = options || {};
+    const { page, search, searchFields, sort } = options || {};
 
-    const { skip, take } = toSkipTake(page, limit);
+    const { skip, take } = toSkipTake(page);
 
     let where: FindOptionsWhere<Entity>[] | undefined = options?.where
       ? [options.where]
@@ -69,10 +69,10 @@ export class BaseService<
         : undefined,
     });
 
-    const totalPages = Math.ceil(total / take);
-
     let metadata: MetaData | undefined;
     if (page) {
+      const totalPages = Math.ceil(total / take!);
+
       metadata = {
         page: page,
         limit: data.length,
