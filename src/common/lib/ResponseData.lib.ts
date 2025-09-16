@@ -1,4 +1,5 @@
-import { HttpStatus } from "@nestjs/common";
+import { Tokens } from '@common/types';
+import { HttpStatus } from '@nestjs/common';
 
 export interface MetaData {
   page?: number; // hozirgi sahifa
@@ -13,21 +14,24 @@ export interface MetaData {
 export class ResponseData<Entity> {
   success: boolean;
   message: string;
-  statusCode: HttpStatus
+  statusCode: HttpStatus;
   data?: Entity;
   meta?: MetaData;
+  tokens?: Tokens;
 
   constructor(options: {
     success: boolean;
     message: string;
-    statusCode: HttpStatus
+    statusCode: HttpStatus;
     data?: Entity;
+    tokens?: Tokens;
     meta?: MetaData;
   }) {
     this.success = options.success;
     this.message = options.message;
     this.statusCode = options.statusCode;
     this.data = options.data;
+    this.tokens = options.tokens;
     this.meta = options.meta;
   }
 }

@@ -1,12 +1,15 @@
-import { Injectable } from '@nestjs/common';
+// Nestjs va tashqi kutubxonlar
+import { ConflictException, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+// Loyiha modullari va local fayllar
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { BaseService } from '@common/bases';
 import { User } from './entities/user.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { ResponseData } from '@common/lib/ResponseData.lib';
 import { FindAllOptions } from '@common/types';
+import { MetaData, PasswordService, ResponseData } from '@common/lib';
 
 @Injectable()
 export class UserService extends BaseService<
@@ -16,13 +19,42 @@ export class UserService extends BaseService<
 > {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    private readonly passwordService: PasswordService,
   ) {
     super(userRepository, 'Foydalanuvchi');
   }
 
+  /* ========== 🆕 Create operation ========== */
+  async create(createDto: CreateUserDto): Promise<User> {
+    const hashedPassword = await this.passwordService.hash(createDto.password);
+    return super.create({ ...createDto, password: hashedPassword });
+  }
+
+  /* ========== 📖 Read operation ========== */
   findAll(
     options?: FindAllOptions<User> | undefined,
-  ): Promise<ResponseData<User[]>> {
+  ): Promise<{ data: User[]; meta?: MetaData }> {
     return super.findAll(options);
+  }
+
+  async findByEmail(email: string): Promise<User> {
+    const user = await this.userRepository.findBy({ email });
+
+    if (user) {
+      throw new ConflictException('Bu email bilan foydalanuvchi mavjud');
+    }
+
+    return user;
+  }
+
+  /* ========== ♻️ Update operation ========== */
+  async update(id: number, updateDto: UpdateUserDto): Promise<User> {
+    // Agar password yangilanayotgan bo'lsa, uni hash qilamiz
+    if (updateDto.password) {
+      updateDto.password = await this.passwordService.hash(updateDto.password);
+    }
+
+    // BaseService update'ni chaqiramiz
+    return super.update(id, updateDto);
   }
 }

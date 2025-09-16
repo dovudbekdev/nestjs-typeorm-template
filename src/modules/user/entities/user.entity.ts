@@ -4,6 +4,7 @@ import { Column, Entity } from 'typeorm';
 // Loyiha modullari va local fayllar
 import { BaseEntity } from '@common/bases';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Role } from '@common/enums';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -34,4 +35,13 @@ export class User extends BaseEntity {
   //   @ApiProperty({ type: 'string', description: 'Parol', example: '1234' })
   @Column({ type: 'text' })
   password: string;
+
+  @ApiProperty({
+    type: 'string',
+    description: 'Foydalanuvchiga berilgan role',
+    enum: Role,
+    example: Role.USER,
+  })
+  @Column({ type: 'enum', enum: Role, default: Role.USER })
+  role: Role;
 }

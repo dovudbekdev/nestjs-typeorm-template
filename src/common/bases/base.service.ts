@@ -25,24 +25,16 @@ export class BaseService<
   ) {}
 
   /* ========== 🆕 Create operation ========== */
-  async create(createDto: CreateDto): Promise<ResponseData<Entity>> {
+  async create(createDto: CreateDto): Promise<Entity> {
     const entity = this.repository.create(createDto as DeepPartial<Entity>);
-
     const createdEntity = await this.repository.save(entity);
-
-    const response = new ResponseData<Entity>({
-      success: true,
-      message: `Yangi ${this.entityName.toLowerCase()} muvaffaqiyatli yaratildi`,
-      statusCode: HttpStatus.CREATED,
-      data: createdEntity,
-    });
-    return response;
+    return createdEntity;
   }
 
   /* ========== 📖 Read operation ========== */
   async findAll(
     options?: FindAllOptions<Entity>,
-  ): Promise<ResponseData<Entity[]>> {
+  ): Promise<{ data: Entity[]; meta?: MetaData }> {
     const { page, search, searchFields, sort } = options || {};
 
     const { skip, take } = toSkipTake(page);
@@ -83,18 +75,10 @@ export class BaseService<
       };
     }
 
-    const response = new ResponseData<Entity[]>({
-      success: true,
-      message: `${this.entityName}lar ro'yxati`,
-      statusCode: HttpStatus.OK,
-      data: data,
-      meta: metadata,
-    });
-
-    return response;
+    return { data, meta: metadata };
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<Entity> {
     const entity = await this.repository.findOne({
       where: { id } as FindOptionsWhere<Entity>,
     });
@@ -107,10 +91,7 @@ export class BaseService<
   }
 
   /* ========== ♻️ Update operation ========== */
-  async update(
-    id: number,
-    updateDto: UpdateDto,
-  ): Promise<ResponseData<Entity>> {
+  async update(id: number, updateDto: UpdateDto): Promise<Entity> {
     const entity = await this.findOne(id);
 
     const updated = this.repository.merge(
@@ -118,25 +99,13 @@ export class BaseService<
       updateDto as DeepPartial<Entity>,
     );
 
-    const updatedData = await this.repository.save(updated);
-
-    return new ResponseData<Entity>({
-      success: true,
-      message: `${this.entityName} ma'lumotlari muvaffaqiyatli yangilandi`,
-      statusCode: HttpStatus.OK,
-    });
+    return this.repository.save(updated);
   }
 
   /* ========== 🗑️ Delete operation ========== */
-  async remove(id: number) {
+  async remove(id: number): Promise<boolean> {
     const entity = await this.findOne(id);
-
     await this.repository.remove(entity);
-
-    return new ResponseData<Entity>({
-      success: false,
-      message: `${this.entityName} ma'lumoti muvaffaqiyatli o'chirildi`,
-      statusCode: HttpStatus.OK,
-    });
+    return true;
   }
 }

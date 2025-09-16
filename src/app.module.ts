@@ -11,6 +11,7 @@ import { UserModule } from './modules/user/user.module';
 import { PostModule } from './modules/post/post.module';
 import { LikeModule } from './modules/like/like.module';
 import { CommentModule } from './modules/comment/comment.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { CommentModule } from './modules/comment/comment.module';
     PostModule,
     LikeModule,
     CommentModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

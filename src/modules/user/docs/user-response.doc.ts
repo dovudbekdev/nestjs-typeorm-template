@@ -62,3 +62,29 @@ export class FindAllUserResponse {
   })
   data: User[];
 }
+
+export class FindOneUserResponse {
+  @ApiProperty({ type: 'boolean', example: true })
+  success: boolean;
+
+  @ApiProperty({
+    type: 'string',
+    description: "Foydalanuvchi ro'yxati",
+    example: "Foydalanuvchi ro'yxati",
+  })
+  message: string;
+
+  @ApiProperty({
+    type: 'number',
+    example: HttpStatus.OK,
+    enum: HttpStatus,
+  })
+  statusCode: number;
+
+  @ApiProperty({
+    type: User,
+    isArray: true,
+    description: "Foydalanuvchi ro'yxati",
+  })
+  data: User;
+}
