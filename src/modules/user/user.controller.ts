@@ -11,8 +11,9 @@ import {
   Query,
   HttpStatus,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 // Loyiha modullari va local fayllar
 import { UserService } from './user.service';
@@ -26,8 +27,9 @@ import {
 import { FindAllDto } from '@common/dtos';
 import { FindAllOptions } from '@common/types';
 import { User } from './entities/user.entity';
-import { AppConfigService } from '@config/config.service';
+import { AppConfigService } from '@common/services/config.service';
 import { ResponseData } from '@common/lib';
+import { AuthGuard } from '@common/guards';
 
 @ApiTags('Users')
 @Controller('user')
@@ -51,6 +53,8 @@ export class UserController {
     });
   }
 
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @Get()
   @applyDecorators(...FindAllUserResponseDocs)
   async findAll(@Query() query: FindAllDto) {

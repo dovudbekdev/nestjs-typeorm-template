@@ -4,3 +4,7 @@ export * from './bases';
 export * from './decorators';
 export * from './dtos';
 export * from './enums';
+export * from './services';
+export * from './common.module';
+export * from './interfaces';
+export * from './guards';

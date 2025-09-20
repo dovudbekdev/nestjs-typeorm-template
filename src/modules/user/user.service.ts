@@ -26,7 +26,15 @@ export class UserService extends BaseService<
 
   /* ========== 🆕 Create operation ========== */
   async create(createDto: CreateUserDto): Promise<User> {
+    const foundUser = await this.findByUserName(createDto.username);
+    if (foundUser) {
+      throw new ConflictException(
+        'Bunday usernam orqali foydalanuvchi yaratilgan',
+      );
+    }
+
     const hashedPassword = await this.passwordService.hash(createDto.password);
+
     return super.create({ ...createDto, password: hashedPassword });
   }
 
@@ -37,14 +45,18 @@ export class UserService extends BaseService<
     return super.findAll(options);
   }
 
-  async findByEmail(email: string): Promise<User> {
-    const user = await this.userRepository.findBy({ email });
+  async findByEmail(email: string): Promise<User | null> {
+    const user = await this.userRepository.findOneBy({ email });
 
     if (user) {
       throw new ConflictException('Bu email bilan foydalanuvchi mavjud');
     }
 
     return user;
+  }
+
+  findByUserName(username: string): Promise<User | null> {
+    return this.userRepository.findOneBy({ username });
   }
 
   /* ========== ♻️ Update operation ========== */

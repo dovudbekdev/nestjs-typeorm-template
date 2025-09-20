@@ -1,13 +1,6 @@
+import { ICookieConfig, IRedisConfig, ITokneConfig } from '@common/interfaces';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-
-export interface IJwtConfig {
-  accessTokenSecret: string;
-  accessTokenExpiresIn: string;
-  refreshTokenSecret: string;
-  refreshTokenExpiresIn: string;
-}
 
 // export type IDbConfig = TypeOrmModuleOptions & {
 //   autoLoadEntities: boolean;
@@ -34,7 +27,15 @@ export class AppConfigService {
     return this.configService.get<number>('app.paginationLimit', 10);
   }
 
-  get jwtConfig(): IJwtConfig {
-    return this.configService.getOrThrow<IJwtConfig>('jwt');
+  get tokenConfig(): ITokneConfig {
+    return this.configService.getOrThrow<ITokneConfig>('jwt');
+  }
+
+  get cookieConfig(): ICookieConfig {
+    return this.configService.getOrThrow<ICookieConfig>('cookies');
+  }
+
+  get redisConfig(): IRedisConfig {
+    return this.configService.getOrThrow<IRedisConfig>('redis');
   }
 }

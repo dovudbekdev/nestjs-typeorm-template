@@ -1,21 +1,46 @@
 // Nestjs va tashqi kutubxonalar
-import { Module, OnModuleInit } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import log from 'consola';
 
 // Loyihaning xususiy modullari va local fayllar
-import { AppConfigModule } from '@config/config.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppConfigService } from '@config/config.service';
+import { AppConfigService } from '@common/services/config.service';
 import { UserModule } from './modules/user/user.module';
 import { PostModule } from './modules/post/post.module';
 import { LikeModule } from './modules/like/like.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { JwtModule } from '@nestjs/jwt';
+import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-ioredis-yet';
+import { ConfigModule } from '@nestjs/config';
+import { appConfig } from '@config/app.config';
+import { typeormConfig } from '@config/typeorm.config';
+import { jwtConfig } from '@config/jwt.config';
+import { cookieConfig } from '@config/cookie.config';
+import { CommonModele } from '@common/common.module';
+import { redisConfig } from '@config/redis.config';
 
 @Module({
   imports: [
-    AppConfigModule,
+    CommonModele,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [appConfig, typeormConfig, jwtConfig, cookieConfig, redisConfig],
+      envFilePath: [`.env.${process.env.NODE_ENV}`, '.env'],
+    }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      inject: [AppConfigService],
+      useFactory: async (appConfigService: AppConfigService) => {
+        const store = await redisStore(appConfigService.redisConfig);
+        return {
+          store: () => store,
+        };
+      },
+    }),
+    JwtModule.register({ global: true }),
     TypeOrmModule.forRootAsync({
       inject: [AppConfigService],
       useFactory: async (appconfigService: AppConfigService) => {
@@ -46,11 +71,12 @@ import { AuthModule } from './modules/auth/auth.module';
         }
       },
     }),
+
+    AuthModule,
     UserModule,
     PostModule,
     LikeModule,
     CommentModule,
-    AuthModule,
   ],
 })
 export class AppModule {}

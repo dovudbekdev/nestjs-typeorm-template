@@ -5,4 +5,5 @@ export const swaggerConfig = new DocumentBuilder()
   .setDescription(
     'NestJS + TypeORM uchun shablon loyiha. Strukturani unutib qo‘ymaslik va tezda yangi loyihalarni boshlash uchun. ',
   )
+  .addBearerAuth()
   .build();

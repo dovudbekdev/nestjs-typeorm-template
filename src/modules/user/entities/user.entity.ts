@@ -1,10 +1,11 @@
 // Nestjs va tashqi kutubxonalar
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 // Loyiha modullari va local fayllar
 import { BaseEntity } from '@common/bases';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Role } from '@common/enums';
+import { UserToken } from '@modules/auth/entities/user-token.entity';
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -44,4 +45,7 @@ export class User extends BaseEntity {
   })
   @Column({ type: 'enum', enum: Role, default: Role.USER })
   role: Role;
+
+  @OneToMany(() => UserToken, (userToken) => userToken.user)
+  tokens: UserToken[];
 }
